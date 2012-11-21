@@ -1,0 +1,4 @@
+severity=stern
+
+# Terrible workaround for critic fighting with autoversioning from dzil
+exclude=RequireUseStrict RequireUseWarnings
