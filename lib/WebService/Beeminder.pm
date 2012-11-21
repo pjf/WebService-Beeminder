@@ -26,7 +26,8 @@ sub BUILD {
     return;
 }
 
-sub fetch {
+# Gets the datapoints for a goal
+sub datapoints {
     my ($self, $goal) = @_;
 
     return $self->_userget( 'goals', $goal, 'datapoints.json');
