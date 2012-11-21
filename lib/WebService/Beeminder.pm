@@ -29,7 +29,7 @@ sub BUILD {
 sub fetch {
     my ($self, $goal) = @_;
 
-    return $self->_userget( $goal, 'datapoints.json');
+    return $self->_userget( 'goals', $goal, 'datapoints.json');
 
 }
 
@@ -45,7 +45,7 @@ sub _get {
     my $ua   = $self->agent;
     my $resp = $ua->get($url);
 
-    unless ($resp->is_success) { croak "Failed to fetch $url"; }
+    unless ($resp->is_success) { croak "Failed to fetch $url - ".$resp->status_line; }
 
     return $json->decode($resp->content);
 }
@@ -54,7 +54,7 @@ sub _get {
 sub _userget {
     my ($self, @args) = @_;
 
-    return $self->_get('users', $self->user);
+    return $self->_get('users', $self->user, @args);
 }
 
 1;
