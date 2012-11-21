@@ -5,8 +5,8 @@ use warnings;
 use Test::More;
 use WebService::Beeminder;
 
-if (not $ENV{TEST_AUTHOR} ) {
-    plan skip_all => 'Set $ENV{TEST_AUTHOR} to run author tests.'
+if (not $ENV{AUTHOR_TESTING} ) {
+    plan skip_all => 'Set $ENV{AUTHOR_TESTING} to run author tests.'
 }
 
 my $token_file = "$ENV{HOME}/.webservice-beeminder.token";
