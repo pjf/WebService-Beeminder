@@ -32,17 +32,17 @@ my $dry_bee = WebService::Beeminder->new(token => $token, dryrun => 1);
 foreach my $bee ($wet_bee, $dry_bee) {
 
     # This test assumes our beeminder username is the same as our
-    # unix username
+    # unix username.  We'll also try testing with 'me' and an empty
+    # username.
 
-    my $user = $ENV{USER};
+    foreach my $user ($ENV{USER}, "", "me") {
+        my $data = $bee->user();
 
-    my $data = $bee->user();
-
-    is(  $data->{username}, $user);
-    like($data->{timezone}, qr{^\w+/\w+$}); # Eg: Australia/Melbourne
-    like($data->{updated_at}, qr{^\d+$});
-    ok('floss' ~~ $data->{goals}, "Floss is a goal");
-
+        is(  $data->{username}, $ENV{USER}, "username ($user)");
+        like($data->{timezone}, qr{^\w+/\w+$}, "timezone ($user)"); # Eg: Australia/Melbourne
+        like($data->{updated_at}, qr{^\d+$}, "updated ($user)");
+        ok('floss' ~~ $data->{goals}, "Floss is a goal ($user)");
+    }
 }
 
 done_testing;
