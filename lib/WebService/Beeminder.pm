@@ -15,6 +15,7 @@ use Carp qw(croak);
 has 'token'   => (isa => 'Str', is => 'ro', required => 1);
 has 'user'    => (isa => 'Str', is => 'ro', default => 'me');
 has 'agent'   => (              is => 'rw');
+has 'dryrun'  => (isa => 'Bool',is => 'ro', default => 0);
 has 'apibase' => (isa => 'Str', is => 'ro', default => 'https://www.beeminder.com/api/v1'); 
 
 sub BUILD {
@@ -45,6 +46,11 @@ sub _get {
     state $json = JSON::Any->new;
 
     my $url  = join('/', $self->apibase, @path) . "?auth_token=" . $self->token;
+
+    if ($self->dryrun) {
+        $url .= "&dryrun=1";
+    }
+
     my $ua   = $self->agent;
     my $resp = $ua->get($url);
 
