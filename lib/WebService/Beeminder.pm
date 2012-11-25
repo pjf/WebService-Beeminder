@@ -5,7 +5,8 @@ package WebService::Beeminder;
 use 5.010;
 use strict;
 use warnings;
-use Any::Moose;
+use MooseX::Method::Signatures;
+use Moose;
 use JSON::Any;
 use LWP::UserAgent;
 use Carp qw(croak);
@@ -14,7 +15,7 @@ use Carp qw(croak);
 
 has 'token'   => (isa => 'Str', is => 'ro', required => 1);
 has 'username'=> (isa => 'Str', is => 'ro', default => 'me');
-has 'agent'   => (              is => 'rw');
+has 'agent'   => (              is => 'rw'); # Must act like LWP::UserAgent
 has 'dryrun'  => (isa => 'Bool',is => 'ro', default => 0);
 has 'apibase' => (isa => 'Str', is => 'ro', default => 'https://www.beeminder.com/api/v1'); 
 
@@ -30,10 +31,7 @@ sub BUILD {
 }
 
 # Get information about a user
-sub user {
-    my ($self, $user) = @_;
-
-    $user ||= "me";
+method user(Str $user = "me") {
 
     # AFAIK, the $user here is irrelevant, since we can only query
     # the user we're logged in as. Still, we'll respect it, in
@@ -44,12 +42,14 @@ sub user {
 }
 
 # Gets the datapoints for a goal
-sub datapoints {
-    my ($self, $goal) = @_;
-
+# DONE: 2011-11-25. This takes no parameters.
+method datapoints(Str $goal) {
     return $self->_userget( 'goals', $goal, 'datapoints.json');
-
 }
+
+# sub add_datapoint {
+#    my ($self, %args) = @_;
+# }
 
 # Fetches something from the API. Automatically prepends the API path,
 # adds the token to the end, and decodes the JSON.
