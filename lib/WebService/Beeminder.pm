@@ -21,6 +21,15 @@ This is a I<thin-ish> wrapper around the Beeminder API.  All results are
 exactly what's returned by the underlying API, with the JSON being
 converted into Perl data structures.
 
+You need a Beeminder API token to use this module.  The easiest way
+to get a personal token is just to login to L<Beeminder|http://beeminder.com/>
+and then go to L<https://www.beeminder.com/api/v1/auth_token.json>.
+Copy'n'paste the token into your code (or a config file your code uses),
+and you're good to go!
+
+More information on tokens is available in the
+L<Beeminder API documentation|http://beeminder.com/api>.
+
 =head1 INSTALLATION
 
 This module presently uses L<MooseX::Method::Signatures>.  If you're
