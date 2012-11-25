@@ -2,6 +2,48 @@ package WebService::Beeminder;
 
 # ABSTRACT: Access the Beeminder API
 
+=head1 SYNOPSIS
+
+    my $bee = WebService::Beeminder->new( token => $token );
+
+    # I flossed my teeth today.
+    $bee->add_datapoint( goal => 'floss', value => 1 );
+
+    # When did I last take dance lessons?
+    my $result = $bee->datapoints('dance');
+
+    say "I danced $result->[-1]{timestamp} seconds from the epoch at " .
+        $result->[-1]{comment};
+
+=head1 DESCRIPTION
+
+This is a I<thin-ish> wrapper around the Beeminder API.  All results are
+exactly what's returned by the underlying API, with the JSON being
+converted into Perl data structures.
+
+=head1 INSTALLATION
+
+This module presently uses L<MooseX::Method::Signatures>.  If you're
+not experienced in installing module dependencies, it's recommend you
+use L<APP::cpanminus>, which doesn't require any special privileges
+or software.
+
+Perl v5.10.0 or later is required for this module.
+
+=head1 SEE ALSO
+
+=over
+
+=item * 
+
+L<The Beeminder API|http://beeminder.com/api>
+
+=back
+
+=for Pod::Coverage BUILD
+
+=cut
+
 use 5.010;
 use strict;
 use warnings;
@@ -33,7 +75,27 @@ sub BUILD {
     return;
 }
 
+=method user
+
+    my $result = $bee->user();
+
+Obtains information about the current user. This returns a user resource
+(as defined by the Beeminder API), which looks like this:
+
+    {
+        username   => "alice",
+        timezone   => "America/Los_Angeles",
+        updated_at => 1343449880,                       
+        goals      =>  ['gmailzero', 'weight']
+    }
+
+Note: Presently only basic parameters are returned, even though the
+beeminder API supports additional filters.
+
+=cut
+
 # Get information about a user
+# TODO: Accept optional parameters
 method user(Str $user = "me") {
 
     # AFAIK, the $user here is irrelevant, since we can only query
@@ -44,11 +106,61 @@ method user(Str $user = "me") {
 
 }
 
+=method datapoints
+
+    my $results = $bee->datapoints($goal);
+
+This method returns an array reference of data points for the given goal:
+
+    [
+        {  
+            id         => 'abc123'
+            timestamp  => 1234567890,
+            value      => 1.1,
+            comment    => "Frobnicated a widget",
+            updated_at => 1234567890
+        },
+        {
+            id         => 'abc124'
+            timestamp  => 1234567891,
+            value      => 1.2,
+            comment    => "Straightened my doohickies",
+            updated_at => 1234567891
+        },
+    ]
+
+=cut
+
 # Gets the datapoints for a goal
 # DONE: 2011-11-25. This takes no parameters.
 method datapoints(Str $goal) {
     return $self->_userget( 'goals', $goal, 'datapoints.json');
 }
+
+=method add_datapoint
+
+    my $point = $bee->add_datapoint(
+        goal      => 'floss',
+        timestamp => time(),        # Optional, defaults to now
+        value     => 1,
+        comment   => 'Floss every tooth for great justice!',
+        sendmail  => 0,             # Optional, defaults to false
+    );
+
+Adds a data-point to the given goal. Mail will be sent to the user if
+the C<sendmail> parameter is true.
+
+Returns the data-point that was created:
+
+    {
+        id         => 'abc125'
+        timestamp  => 1234567892,
+        value      => 1,
+        comment    => 'Floss every tooth for great justice!'
+        updated_at => 1234567892
+    }
+
+=cut
 
 method add_datapoint(
     Str  :$goal!,
