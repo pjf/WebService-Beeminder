@@ -47,7 +47,7 @@ foreach my $bee ($wet_bee, $dry_bee) {
 
 # Test adding a datapoint.
 
-my $value   = sprintf('%.4f', rand(10));
+my $value   = sprintf('%.4f', rand(10)) +0; # +0 to remove trailing zeroes
 my $comment = "Testing WebService::Beeminder v" 
             . $wet_bee->VERSION . " (value: $value)";
 
