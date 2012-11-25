@@ -1,13 +1,13 @@
 # WebService::Beeminder -  Perl wrapper around the Beeminder API.
 
-## Using
+## Using this module
 
 If you just wish to use this module, then please install the latest release
 from the CPAN:
 
     cpanm WebService::Beeminder
 
-## Developing
+## Developing this module
 
 If you want to help _develop_ this module, then feel free to clone the
 repo here. Contributions are greatly appreciated!
