@@ -19,6 +19,9 @@ has 'agent'   => (              is => 'rw'); # Must act like LWP::UserAgent
 has 'dryrun'  => (isa => 'Bool',is => 'ro', default => 0);
 has 'apibase' => (isa => 'Str', is => 'ro', default => 'https://www.beeminder.com/api/v1'); 
 
+# Everything needs to be able to read/write JSON.
+my $json = JSON::Any->new;
+
 sub BUILD {
     my ($self) = @_;
 
@@ -47,28 +50,63 @@ method datapoints(Str $goal) {
     return $self->_userget( 'goals', $goal, 'datapoints.json');
 }
 
-# sub add_datapoint {
-#    my ($self, %args) = @_;
-# }
+method add_datapoint(
+    Str  :$goal!,
+    Int  :$timestamp,     # TODO: Change to a proper timestamp type.
+    Num  :$value!,
+    Str  :$comment = "",
+    Bool :$sendmail = 0
+) {
+    $timestamp //= time();
 
-# Fetches something from the API. Automatically prepends the API path,
-# adds the token to the end, and decodes the JSON.
+    return $self->_userpost( 
+        { timestamp => $timestamp, value => $value, comment => $comment, sendmail => $sendmail },
+        'goals', $goal, 'datapoints.json' 
+    );
+}
 
-sub _get {
+# Posts to the API. Takes a hashref of parameters. Remaining arguments
+# are interpreted as a path.
+sub _userpost {
+    my ($self, $params, @path) = @_;
+
+    my $url  = $self->_path('users', $self->username, @path);
+
+    my $resp = $self->agent->post( $url, $params );
+
+    unless ($resp->is_success) { 
+        croak "Failed to fetch $url - ".$resp->status_line; 
+    }
+
+    return $json->decode($resp->content);
+
+};
+
+# Builds a path, and adds appropriate auth tokens, etc.
+sub _path {
     my ($self, @path) = @_;
-    
-    state $json = JSON::Any->new;
 
     my $url  = join('/', $self->apibase, @path) . "?auth_token=" . $self->token;
 
     if ($self->dryrun) {
         $url .= "&dryrun=1";
     }
+    
+    return $url;
+}
 
-    my $ua   = $self->agent;
-    my $resp = $ua->get($url);
+# Fetches something from the API. Automatically prepends the API path,
+# adds the token to the end, and decodes the JSON.
 
-    unless ($resp->is_success) { croak "Failed to fetch $url - ".$resp->status_line; }
+sub _get {
+    my ($self, @path) = @_;
+
+    my $url  = $self->_path(@path);
+    my $resp = $self->agent->get( $url );
+
+    unless ($resp->is_success) { 
+        croak "Failed to fetch $url - ".$resp->status_line; 
+    }
 
     return $json->decode($resp->content);
 }

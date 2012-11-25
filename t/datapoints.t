@@ -5,6 +5,8 @@ use warnings;
 use Test::More;
 use WebService::Beeminder;
 
+my $TEST_GOAL = 'wsbm-test';
+
 if (not $ENV{AUTHOR_TESTING} ) {
     plan skip_all => 'Set $ENV{AUTHOR_TESTING} to run author tests.'
 }
@@ -42,5 +44,27 @@ foreach my $bee ($wet_bee, $dry_bee) {
     ok($data->[0]{updated_at},      "updated_at");
     ok($data->[0]{id},              "id");
 }
+
+# Test adding a datapoint.
+
+my $value   = sprintf('%.4f', rand(10));
+my $comment = "Testing WebService::Beeminder v" 
+            . $wet_bee->VERSION . " (value: $value)";
+
+my $result = $wet_bee->add_datapoint(
+    goal    => $TEST_GOAL,
+    value   => $value,
+    comment => $comment,
+);
+
+is($result->{value},   $value,   "add_datapoint: value");
+is($result->{comment}, $comment, "add_datapoint: comment");
+
+# Now let's fetch that datapoint and make sure it's there!
+
+my $data = $wet_bee->datapoints($TEST_GOAL);
+
+is($data->[-1]{value},   $value,   "retrieve: value");
+is($data->[-1]{comment}, $comment, "retrieve: comment");
 
 done_testing;
