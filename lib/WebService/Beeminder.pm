@@ -58,6 +58,7 @@ use strict;
 use warnings;
 use MooseX::Method::Signatures;
 use Moose;
+use WebService::Beeminder::Types qw(BeeBool);
 use JSON::Any;
 use LWP::UserAgent;
 use Carp qw(croak);
@@ -186,9 +187,18 @@ method add_datapoint(
     );
 }
 
+=method goal
+
+   my $results = $bee->goal('floss', datapoints => 0);
+
+Returns information about a goal. The optional C<datapoints> parameter can be
+supplied with a true value to also fetch datapoints for that goal.
+
+=cut
+
 method goal(
-    Str  :$goal!,
-    Bool :$datapoints = 0
+    Str  $goal,
+    BeeBool :$datapoints = 'false' does coerce
 ) {
     return $self->_userget( [ 'goals', "$goal.json" ], { datapoints => $datapoints });
 }
