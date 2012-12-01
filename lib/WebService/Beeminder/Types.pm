@@ -28,3 +28,5 @@ coerce Bool,
     from BeeBool,
     via { $_ eq "true" }
 ;
+
+1;
