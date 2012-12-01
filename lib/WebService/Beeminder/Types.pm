@@ -9,6 +9,8 @@ use warnings;
 use MooseX::Types -declare => [
     qw(
         BeeBool
+        Goal
+        User
     )
 ];
 
@@ -27,6 +29,17 @@ coerce BeeBool,
 coerce Bool,
     from BeeBool,
     via { $_ eq "true" }
+;
+
+# Goal and User types are just strings, but we can tweak them later
+# if there are restrictions as to what's a valid user or goal name.
+
+subtype Goal,
+    as Str
+;
+
+subtype User,
+    as Str
 ;
 
 1;
