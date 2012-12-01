@@ -111,7 +111,7 @@ method user(Str $user = "me") {
     # the user we're logged in as. Still, we'll respect it, in
     # case that changes in the future.
 
-    return $self->_get('users',"$user.json");
+    return $self->_get(['users',"$user.json"]);
 
 }
 
@@ -143,7 +143,7 @@ This method returns an array reference of data points for the given goal:
 # Gets the datapoints for a goal
 # DONE: 2011-11-25. This takes no parameters.
 method datapoints(Str $goal) {
-    return $self->_userget( 'goals', $goal, 'datapoints.json');
+    return $self->_userget( ['goals', $goal, 'datapoints.json']);
 }
 
 =method add_datapoint
@@ -182,16 +182,23 @@ method add_datapoint(
 
     return $self->_userpost( 
         { timestamp => $timestamp, value => $value, comment => $comment, sendmail => $sendmail },
-        'goals', $goal, 'datapoints.json' 
+        [ 'goals', $goal, 'datapoints.json' ]
     );
+}
+
+method goal(
+    Str  :$goal!,
+    Bool :$datapoints = 0
+) {
+    return $self->_userget( [ 'goals', "$goal.json" ], { datapoints => $datapoints });
 }
 
 # Posts to the API. Takes a hashref of parameters. Remaining arguments
 # are interpreted as a path.
 sub _userpost {
-    my ($self, $params, @path) = @_;
+    my ($self, $params, $path, $options) = @_;
 
-    my $url  = $self->_path('users', $self->username, @path);
+    my $url  = $self->_path(['users', $self->username, @$path], $options);
 
     my $resp = $self->agent->post( $url, $params );
 
@@ -205,12 +212,16 @@ sub _userpost {
 
 # Builds a path, and adds appropriate auth tokens, etc.
 sub _path {
-    my ($self, @path) = @_;
+    my ($self, $path, $options) = @_;
 
-    my $url  = join('/', $self->apibase, @path) . "?auth_token=" . $self->token;
+    my $url  = join('/', $self->apibase, @$path) . "?auth_token=" . $self->token;
 
     if ($self->dryrun) {
         $url .= "&dryrun=1";
+    }
+
+    foreach my $opt (keys %$options) {
+        $url .= "&$opt=$options->{$opt}";   # TODO: Escape params!
     }
     
     return $url;
@@ -220,9 +231,9 @@ sub _path {
 # adds the token to the end, and decodes the JSON.
 
 sub _get {
-    my ($self, @path) = @_;
+    my ($self, $path, $options) = @_;
 
-    my $url  = $self->_path(@path);
+    my $url  = $self->_path($path, $options);
     my $resp = $self->agent->get( $url );
 
     unless ($resp->is_success) { 
@@ -234,9 +245,9 @@ sub _get {
 
 # As for _get, but prepends 'users' and the current user.
 sub _userget {
-    my ($self, @args) = @_;
+    my ($self, $args, $options) = @_;
 
-    return $self->_get('users', $self->username, @args);
+    return $self->_get([ 'users', $self->username, @$args], $options);
 }
 
 1;
