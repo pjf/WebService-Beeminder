@@ -173,11 +173,11 @@ Returns the data-point that was created:
 =cut
 
 method add_datapoint(
-    Str  :$goal!,
-    Int  :$timestamp,     # TODO: Change to a proper timestamp type.
-    Num  :$value!,
-    Str  :$comment = "",
-    Bool :$sendmail = 0
+    Str     :$goal!,
+    Int     :$timestamp,     # TODO: Change to a proper timestamp type.
+    Num     :$value!,
+    Str     :$comment = "",
+    BeeBool :$sendmail = 'false' does coerce 
 ) {
     $timestamp //= time();
 
@@ -193,6 +193,9 @@ method add_datapoint(
 
 Returns information about a goal. The optional C<datapoints> parameter can be
 supplied with a true value to also fetch datapoints for that goal.
+
+Goal objects are complex data structures, and are described in the
+L<Beeminder API documentation|https://www.beeminder.com/api#goal>.
 
 =cut
 
