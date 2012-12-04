@@ -87,7 +87,13 @@ sub BUILD {
 
 =method user
 
-    my $result = $bee->user();
+    my $result = $bee->user(
+        goals_filter => 'frontburner', # or 'backburner', or 'all' (default)
+        diff_since   => $last_check,   # Seconds from the epoch. Default: 'null'
+        skinny       => 1,             # Return slimmed info. Default: 'false'
+    );
+
+All arguments are optional.
 
 Obtains information about the current user. This returns a user resource
 (as defined by the Beeminder API), which looks like this:
@@ -99,20 +105,37 @@ Obtains information about the current user. This returns a user resource
         goals      =>  ['gmailzero', 'weight']
     }
 
-Note: Presently only basic parameters are returned, even though the
-beeminder API supports additional filters.
+If C<diff_since> is specified, then the goals will be a list of hashes,
+rather than just a simple list of goals.
+
+Note that the C<associations> parameter specified in the API is currently
+not supported as it results in excessively slow server responses, even
+when set to 'false'.
 
 =cut
 
-# Get information about a user
-# TODO: Accept optional parameters
-method user(User $user = "me") {
+# TODO: The 'associations' parameter seems to result in EVERYTHING
+# being returned, even if it's set to 'false'. As such, the handling
+# of this is presently disabled.
+
+method user(
+    User    :$user  = "me",
+    Str     :$goals_filter = "all" where { /^(?:all|frontburner|backburner)$/ },
+    Int     :$diff_since,
+#   BeeBool :$associations = 'false' does coerce,
+    BeeBool :$skinny = 'false' does coerce
+) {
 
     # AFAIK, the $user here is irrelevant, since we can only query
     # the user we're logged in as. Still, we'll respect it, in
     # case that changes in the future.
 
-    return $self->_get(['users',"$user.json"]);
+    return $self->_get(['users',"$user.json"],{
+#       associations => $associations,
+        goals_filter => $goals_filter,
+        diff_since   => $diff_since // 'null',
+        skinny       => $skinny,
+    });
 
 }
 
