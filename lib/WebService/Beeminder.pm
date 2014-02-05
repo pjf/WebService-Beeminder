@@ -12,8 +12,8 @@ package WebService::Beeminder;
     # When did I last take dance lessons?
     my $result = $bee->datapoints('dance');
 
-    say "I last went dancing on $result->[-1]{timestamp} with a comment of " .
-        $result->[-1]{comment};
+    say "I last went dancing on $result->[0]{timestamp} with a comment of " .
+        $result->[0]{comment};
 
 =head1 DESCRIPTION
 
@@ -143,7 +143,9 @@ method user(
 
     my $results = $bee->datapoints($goal);
 
-This method returns an array reference of data points for the given goal:
+This method returns an array reference of data points for the given goal.
+At the time of writing, the Beeminder API returns the most recent data
+point in the first position in the array.
 
     [
         {  

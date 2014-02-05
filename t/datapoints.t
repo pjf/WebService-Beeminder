@@ -5,7 +5,7 @@ use warnings;
 use Test::More;
 use WebService::Beeminder;
 
-my $TEST_GOAL = 'wsbm-test';
+my $TEST_GOAL = 'test';
 
 if (not $ENV{AUTHOR_TESTING} ) {
     plan skip_all => 'Set $ENV{AUTHOR_TESTING} to run author tests.'
@@ -64,7 +64,7 @@ is($result->{comment}, $comment, "add_datapoint: comment");
 
 my $data = $wet_bee->datapoints($TEST_GOAL);
 
-is($data->[-1]{value},   $value,   "retrieve: value");
-is($data->[-1]{comment}, $comment, "retrieve: comment");
+is($data->[0]{value},   $value,   "retrieve: value");
+is($data->[0]{comment}, $comment, "retrieve: comment");
 
 done_testing;
