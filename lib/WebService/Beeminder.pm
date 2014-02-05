@@ -12,7 +12,7 @@ package WebService::Beeminder;
     # When did I last take dance lessons?
     my $result = $bee->datapoints('dance');
 
-    say "I danced $result->[-1]{timestamp} seconds from the epoch at " .
+    say "I last went dancing on $result->[-1]{timestamp} with a comment of " .
         $result->[-1]{comment};
 
 =head1 DESCRIPTION
@@ -34,10 +34,10 @@ L<Beeminder API documentation|http://beeminder.com/api>.
 
 This module presently uses L<MooseX::Method::Signatures>.  If you're
 not experienced in installing module dependencies, it's recommend you
-use L<APP::cpanminus>, which doesn't require any special privileges
+use L<App::cpanminus>, which doesn't require any special privileges
 or software.
 
-Perl v5.10.0 or later is required for this module.
+Perl v5.10.0 or later is required to use this module.
 
 =head1 SEE ALSO
 

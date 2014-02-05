@@ -3,3 +3,4 @@ Revision history for WebService::Beeminder
 {{$NEXT}}
 
     * META: Corrected repository metadata. (Thanks dsteinbrunner!)
+    * DOCS: Fixed typos.
